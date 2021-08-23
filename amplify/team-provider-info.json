@@ -1,0 +1,52 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-oxen-dev-41450-authRole",
+      "UnauthRoleArn": "arn:aws:iam::001460032620:role/amplify-oxen-dev-41450-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::001460032620:role/amplify-oxen-dev-41450-authRole",
+      "Region": "eu-west-2",
+      "DeploymentBucketName": "amplify-oxen-dev-41450-deployment",
+      "UnauthRoleName": "amplify-oxen-dev-41450-unauthRole",
+      "StackName": "amplify-oxen-dev-41450",
+      "StackId": "arn:aws:cloudformation:eu-west-2:001460032620:stack/amplify-oxen-dev-41450/a78c5d50-e451-11eb-bb7f-022cd83df00c",
+      "AmplifyAppId": "d1ybuduab7len6"
+    },
+    "categories": {
+      "function": {
+        "oxenf4f7aaebf4f7aaebDefineAuthChallenge": {
+          "deploymentBucketName": "amplify-oxen-dev-41450-deployment",
+          "s3Key": "amplify-builds/oxenf4f7aaebf4f7aaebDefineAuthChallenge-57376350645275376743-build.zip"
+        },
+        "oxenf4f7aaebf4f7aaebCreateAuthChallenge": {
+          "deploymentBucketName": "amplify-oxen-dev-41450-deployment",
+          "s3Key": "amplify-builds/oxenf4f7aaebf4f7aaebCreateAuthChallenge-5a2b4e6d334572497477-build.zip"
+        },
+        "oxenf4f7aaebf4f7aaebVerifyAuthChallengeResponse": {
+          "RECAPTCHASECRET": "gr1shAyJa3Ga.r.wdj234xke2b3.4dzl.sedfe",
+          "deploymentBucketName": "amplify-oxen-dev-41450-deployment",
+          "s3Key": "amplify-builds/oxenf4f7aaebf4f7aaebVerifyAuthChallengeResponse-3172664b304b51356937-build.zip"
+        },
+        "oxenf4f7aaebf4f7aaebCustomMessage": {
+          "REDIRECTURL": "n",
+          "EMAILSUBJECT": "",
+          "EMAILMESSAGE": "",
+          "deploymentBucketName": "amplify-oxen-dev-41450-deployment",
+          "s3Key": "amplify-builds/oxenf4f7aaebf4f7aaebCustomMessage-413446654a2f592b3335-build.zip"
+        },
+        "oxenf4f7aaebf4f7aaebPostConfirmation": {
+          "GROUP": "User-Group",
+          "deploymentBucketName": "amplify-oxen-dev-41450-deployment",
+          "s3Key": "amplify-builds/oxenf4f7aaebf4f7aaebPostConfirmation-44384857373172524a75-build.zip"
+        },
+        "autoSignUpAndConfirmSignUp": {
+          "deploymentBucketName": "amplify-oxen-dev-41450-deployment",
+          "s3Key": "amplify-builds/autoSignUpAndConfirmSignUp-574f707a7a6969722f69-build.zip"
+        }
+      },
+      "auth": {
+        "oxen1763c37e": {},
+        "oxen": {}
+      }
+    }
+  }
+}

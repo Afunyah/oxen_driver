@@ -1,5 +1,7 @@
 import 'dart:async';
-
+import 'package:amplify_datastore/amplify_datastore.dart';
+import 'package:oxen_driver/models/ModelProvider.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:oxen_driver/auth/auth_utils.dart';
@@ -7,15 +9,23 @@ import 'package:oxen_driver/amplifyconfiguration.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
-import 'package:oxen_driver/screens/home_page/home_page_widget.dart';
+import 'package:oxen_driver/screens/completion_wait_page/completion_wait_page.dart';
+import 'package:oxen_driver/screens/driver_account_completion_pages/driver_account_completion_page_1.dart';
+import 'package:oxen_driver/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:oxen_driver/screens/role_selection_page/role_selection_page.dart';
 import 'package:oxen_driver/screens/splashscreen_page/splashscreen_page.dart';
+
+import 'package:oxen_driver/globals.dart';
 
 //import 'package:google_fonts/google_fonts.dart';
 Future<void> configureAmplify() async {
   // Add Pinpoint and Cognito Plugins, or any other plugins you want to use
   AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
-  Amplify.addPlugins([authPlugin]);
+  AmplifyDataStore dataStorePlugin =
+      AmplifyDataStore(modelProvider: ModelProvider.instance);
+  AmplifyStorageS3 s3Plugin = AmplifyStorageS3();
+  Amplify.addPlugins([authPlugin, dataStorePlugin, s3Plugin]);
 
   // Once Plugins are added, configure Amplify. Note: Amplify can only be configured once.
   try {
@@ -64,27 +74,64 @@ class _InitPageWidgetState extends State<InitPageWidget> {
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       await Future.delayed(Duration(seconds: 4));
       await configureAmplify().then((validSession) {
-        checkSession().then((validSession) {
+        checkSession().then((validSession) async {
           print('ValidSession -> $validSession');
           if (validSession) {
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomePageWidget(),
-                ),
-                (route) => false);
+            await Globals.setRoleFromPref();
+            // checkSession sets the global phone number and status
+            Rider? userModel = await pullUserModel();
+            if (userModel != null) {
+              Globals.setRider(userModel);
+              print(userModel.toString());
+
+              if (userModel.totalConfirmation) {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePageWidget(),
+                    ),
+                    (route) => false);
+              } else {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CompletionWaitPageWidget(),
+                    ),
+                    (route) => false); //to waiting
+              }
+            } else {
+              print('no user model loaded');
+              if (Globals.getRole() == 'driver') {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          DriverAccountCompletionPage1Widget(),
+                    ),
+                    (route) => false);
+              } else if (Globals.getRole() == 'company') {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          DriverAccountCompletionPage1Widget(),
+                    ),
+                    (route) => false);
+              } else {
+                return;
+              }
+            }
           } else {
             Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SplashScreenPageWidget(),
+                  builder: (context) => RoleSelectionPageWidget(),
                 ),
                 (route) => false);
           }
         });
       });
     });
-    // configureAmplify();
   }
 
   @override

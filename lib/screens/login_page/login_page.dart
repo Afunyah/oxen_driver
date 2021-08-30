@@ -4,10 +4,10 @@ import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
 
-import '../register_page/register_page_widget.dart';
+import '../register_page/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:oxen_driver/globals.dart';
 import 'package:oxen_driver/auth/auth_utils.dart';
 
 class LoginPageWidget extends StatefulWidget {
@@ -194,7 +194,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                           ),
                           FFButtonWidget(
                             onPressed: () async {
-                              await Navigator.push(
+                              await Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => RegisterPageWidget(),

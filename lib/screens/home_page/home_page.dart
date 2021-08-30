@@ -5,6 +5,7 @@ import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oxen_driver/screens/role_selection_page/role_selection_page.dart';
 import 'package:oxen_driver/screens/splashscreen_page/splashscreen_page.dart';
 
 class HomePageWidget extends StatefulWidget {
@@ -299,7 +300,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            SplashScreenPageWidget()),
+                                            RoleSelectionPageWidget()),
                                     (route) => false));
                           },
                           text: 'Log Out',

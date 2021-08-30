@@ -4,7 +4,11 @@ import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
-import 'package:oxen_driver/screens/home_page/home_page_widget.dart';
+import 'package:oxen_driver/globals.dart';
+import 'package:oxen_driver/models/ModelProvider.dart';
+import 'package:oxen_driver/screens/completion_wait_page/completion_wait_page.dart';
+import 'package:oxen_driver/screens/driver_account_completion_pages/driver_account_completion_page_1.dart';
+import 'package:oxen_driver/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -128,13 +132,37 @@ class _ConfirmLoginPageWidgetState extends State<ConfirmLoginPageWidget> {
                     return;
                   }
 
-                  await Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomePageWidget(),
-                    ),
-                    (r) => false,
-                  );
+                  Rider? userModel = await pullUserModel();
+
+                  if (userModel != null) {
+                    Globals.setRider(userModel);
+                    print(userModel.toString());
+
+                    if (userModel.totalConfirmation) {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomePageWidget(),
+                          ),
+                          (route) => false);
+                    } else {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CompletionWaitPageWidget(),
+                          ),
+                          (route) => false);
+                    }
+                  } else {
+                    await Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DriverAccountCompletionPage1Widget(),
+                      ),
+                      (r) => false,
+                    );
+                  }
                 },
                 text: 'Verify Code',
                 options: FFButtonOptions(

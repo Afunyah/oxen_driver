@@ -1,7 +1,10 @@
 import 'dart:async';
 
+import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify.dart';
+import 'package:oxen_driver/globals.dart';
+import 'package:oxen_driver/models/ModelProvider.dart';
 
 String genericKey = 'oxen_gen_key_8181220';
 
@@ -18,11 +21,38 @@ Future<bool> registerUser(String username) async {
         options: CognitoSignUpOptions(userAttributes: userAttributes));
 
     isSignUpComplete = res.isSignUpComplete;
+    if (isSignUpComplete) {
+      Globals.setPhoneNumber(username);
+    }
   } on AuthException catch (e) {
     print(e.message);
   }
 
   return isSignUpComplete;
+}
+
+Future<bool> registerDriver(String username) async {
+  try {
+    Rider rider = Rider(
+        firstName: 'firstName',
+        lastName: 'lastName',
+        phoneNumber: username,
+        status: 'status',
+        rating: 5,
+        ratedBy: 27,
+        vehicleId: 'vehicleId',
+        totalEarned: 102.5,
+        totalCommission: 87.0,
+        financialData: 'financialData',
+        finishedDeliveries: 21,
+        totalConfirmation: false);
+    await Amplify.DataStore.save(rider);
+  } on DataStoreException catch (e) {
+    print(e.message);
+    return false;
+  }
+
+  return true;
 }
 
 Future<bool> verifyCode(String username, String code) async {
@@ -47,6 +77,9 @@ Future<bool> confirmUserLogin(String code) async {
         await Amplify.Auth.confirmSignIn(confirmationValue: code);
 
     isSignedIn = res.isSignedIn;
+    if (isSignedIn) {
+      Globals.finalizePrefRole();
+    }
   } on AuthException catch (e) {
     print(e.message);
   }
@@ -56,6 +89,11 @@ Future<bool> confirmUserLogin(String code) async {
 
 Future<bool> userSignOut() async {
   bool isSignedOut = true;
+  Globals.setRole('');
+  Globals.setPhoneNumber('');
+  Globals.setSignedInStatus(false);
+
+  Globals.finalizePrefRole();
 
   try {
     await Amplify.Auth.signOut();
@@ -87,6 +125,7 @@ Future<bool> authUser(String username) async {
 
     isSignedIn = res
         .isSignedIn; // I think will always be false since MFA enforced. set state()?
+    Globals.setPhoneNumber(username);
   } on AuthException catch (e) {
     print(e.message);
   }
@@ -117,6 +156,10 @@ Future<bool> checkSession() async {
     AuthUser currentUser = await Amplify.Auth.getCurrentUser();
     AuthSession currentSession = await Amplify.Auth.fetchAuthSession();
 
+    // I don't like setting them here, but I don't want another funcion using auth user and sess
+    Globals.setPhoneNumber(currentUser.username);
+    Globals.setSignedInStatus(currentSession.isSignedIn);
+
     print('Current User Details:');
     print(currentUser.toString());
     print(currentUser.userId);
@@ -140,4 +183,14 @@ Future<bool> checkSession() async {
   }
 
   return res;
+}
+
+Future<Rider?> pullUserModel() async {
+  if (Globals.getPhoneNumber() == '') {
+    return null;
+  }
+  List<Rider> riders = await Amplify.DataStore.query(Rider.classType,
+      where: Rider.PHONENUMBER.eq(Globals.getPhoneNumber()));
+
+  return riders.isNotEmpty ? riders[0] : null;
 }

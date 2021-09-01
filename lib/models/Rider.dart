@@ -27,6 +27,7 @@ class Rider extends Model {
   final String? _firstName;
   final String? _lastName;
   final String? _phoneNumber;
+  final String? _licenseNumber;
   final String? _email;
   final String? _status;
   final double? _rating;
@@ -66,6 +67,14 @@ class Rider extends Model {
   String get phoneNumber {
     try {
       return _phoneNumber!;
+    } catch(e) {
+      throw new DataStoreException(DataStoreExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage, recoverySuggestion: DataStoreExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion, underlyingException: e.toString());
+    }
+  }
+  
+  String get licenseNumber {
+    try {
+      return _licenseNumber!;
     } catch(e) {
       throw new DataStoreException(DataStoreExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage, recoverySuggestion: DataStoreExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion, underlyingException: e.toString());
     }
@@ -151,14 +160,15 @@ class Rider extends Model {
     }
   }
   
-  const Rider._internal({required this.id, required firstName, required lastName, required phoneNumber, email, required status, required rating, required ratedBy, required vehicleId, companyId, required totalEarned, required totalCommission, required financialData, required finishedDeliveries, required totalConfirmation}): _firstName = firstName, _lastName = lastName, _phoneNumber = phoneNumber, _email = email, _status = status, _rating = rating, _ratedBy = ratedBy, _vehicleId = vehicleId, _companyId = companyId, _totalEarned = totalEarned, _totalCommission = totalCommission, _financialData = financialData, _finishedDeliveries = finishedDeliveries, _totalConfirmation = totalConfirmation;
+  const Rider._internal({required this.id, required firstName, required lastName, required phoneNumber, required licenseNumber, email, required status, required rating, required ratedBy, required vehicleId, companyId, required totalEarned, required totalCommission, required financialData, required finishedDeliveries, required totalConfirmation}): _firstName = firstName, _lastName = lastName, _phoneNumber = phoneNumber, _licenseNumber = licenseNumber, _email = email, _status = status, _rating = rating, _ratedBy = ratedBy, _vehicleId = vehicleId, _companyId = companyId, _totalEarned = totalEarned, _totalCommission = totalCommission, _financialData = financialData, _finishedDeliveries = finishedDeliveries, _totalConfirmation = totalConfirmation;
   
-  factory Rider({String? id, required String firstName, required String lastName, required String phoneNumber, String? email, required String status, required double rating, required int ratedBy, required String vehicleId, String? companyId, required double totalEarned, required double totalCommission, required String financialData, required int finishedDeliveries, required bool totalConfirmation}) {
+  factory Rider({String? id, required String firstName, required String lastName, required String phoneNumber, required String licenseNumber, String? email, required String status, required double rating, required int ratedBy, required String vehicleId, String? companyId, required double totalEarned, required double totalCommission, required String financialData, required int finishedDeliveries, required bool totalConfirmation}) {
     return Rider._internal(
       id: id == null ? UUID.getUUID() : id,
       firstName: firstName,
       lastName: lastName,
       phoneNumber: phoneNumber,
+      licenseNumber: licenseNumber,
       email: email,
       status: status,
       rating: rating,
@@ -184,6 +194,7 @@ class Rider extends Model {
       _firstName == other._firstName &&
       _lastName == other._lastName &&
       _phoneNumber == other._phoneNumber &&
+      _licenseNumber == other._licenseNumber &&
       _email == other._email &&
       _status == other._status &&
       _rating == other._rating &&
@@ -209,6 +220,7 @@ class Rider extends Model {
     buffer.write("firstName=" + "$_firstName" + ", ");
     buffer.write("lastName=" + "$_lastName" + ", ");
     buffer.write("phoneNumber=" + "$_phoneNumber" + ", ");
+    buffer.write("licenseNumber=" + "$_licenseNumber" + ", ");
     buffer.write("email=" + "$_email" + ", ");
     buffer.write("status=" + "$_status" + ", ");
     buffer.write("rating=" + (_rating != null ? _rating!.toString() : "null") + ", ");
@@ -225,12 +237,13 @@ class Rider extends Model {
     return buffer.toString();
   }
   
-  Rider copyWith({String? id, String? firstName, String? lastName, String? phoneNumber, String? email, String? status, double? rating, int? ratedBy, String? vehicleId, String? companyId, double? totalEarned, double? totalCommission, String? financialData, int? finishedDeliveries, bool? totalConfirmation}) {
+  Rider copyWith({String? id, String? firstName, String? lastName, String? phoneNumber, String? licenseNumber, String? email, String? status, double? rating, int? ratedBy, String? vehicleId, String? companyId, double? totalEarned, double? totalCommission, String? financialData, int? finishedDeliveries, bool? totalConfirmation}) {
     return Rider(
       id: id ?? this.id,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
+      licenseNumber: licenseNumber ?? this.licenseNumber,
       email: email ?? this.email,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -249,6 +262,7 @@ class Rider extends Model {
       _firstName = json['firstName'],
       _lastName = json['lastName'],
       _phoneNumber = json['phoneNumber'],
+      _licenseNumber = json['licenseNumber'],
       _email = json['email'],
       _status = json['status'],
       _rating = json['rating'],
@@ -262,13 +276,14 @@ class Rider extends Model {
       _totalConfirmation = json['totalConfirmation'];
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'firstName': _firstName, 'lastName': _lastName, 'phoneNumber': _phoneNumber, 'email': _email, 'status': _status, 'rating': _rating, 'ratedBy': _ratedBy, 'vehicleId': _vehicleId, 'companyId': _companyId, 'totalEarned': _totalEarned, 'totalCommission': _totalCommission, 'financialData': _financialData, 'finishedDeliveries': _finishedDeliveries, 'totalConfirmation': _totalConfirmation
+    'id': id, 'firstName': _firstName, 'lastName': _lastName, 'phoneNumber': _phoneNumber, 'licenseNumber': _licenseNumber, 'email': _email, 'status': _status, 'rating': _rating, 'ratedBy': _ratedBy, 'vehicleId': _vehicleId, 'companyId': _companyId, 'totalEarned': _totalEarned, 'totalCommission': _totalCommission, 'financialData': _financialData, 'finishedDeliveries': _finishedDeliveries, 'totalConfirmation': _totalConfirmation
   };
 
   static final QueryField ID = QueryField(fieldName: "rider.id");
   static final QueryField FIRSTNAME = QueryField(fieldName: "firstName");
   static final QueryField LASTNAME = QueryField(fieldName: "lastName");
   static final QueryField PHONENUMBER = QueryField(fieldName: "phoneNumber");
+  static final QueryField LICENSENUMBER = QueryField(fieldName: "licenseNumber");
   static final QueryField EMAIL = QueryField(fieldName: "email");
   static final QueryField STATUS = QueryField(fieldName: "status");
   static final QueryField RATING = QueryField(fieldName: "rating");
@@ -286,21 +301,12 @@ class Rider extends Model {
     
     modelSchemaDefinition.authRules = [
       AuthRule(
-        authStrategy: AuthStrategy.PRIVATE,
+        authStrategy: AuthStrategy.PUBLIC,
         operations: [
           ModelOperation.CREATE,
           ModelOperation.UPDATE,
           ModelOperation.DELETE,
           ModelOperation.READ
-        ]),
-      AuthRule(
-        authStrategy: AuthStrategy.OWNER,
-        ownerField: "owner",
-        identityClaim: "cognito:username",
-        operations: [
-          ModelOperation.CREATE,
-          ModelOperation.UPDATE,
-          ModelOperation.DELETE
         ])
     ];
     
@@ -320,6 +326,12 @@ class Rider extends Model {
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
       key: Rider.PHONENUMBER,
+      isRequired: true,
+      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+      key: Rider.LICENSENUMBER,
       isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));

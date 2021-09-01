@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:oxen_driver/globals.dart';
 import 'package:oxen_driver/models/ModelProvider.dart';
 
@@ -31,22 +34,49 @@ Future<bool> registerUser(String username) async {
   return isSignUpComplete;
 }
 
-Future<bool> registerDriver(String username) async {
+Future<bool> registerDriver(
+    String pNum, String fName, String lName, String licenseNum) async {
   try {
     Rider rider = Rider(
-        firstName: 'firstName',
-        lastName: 'lastName',
-        phoneNumber: username,
-        status: 'status',
-        rating: 5,
-        ratedBy: 27,
-        vehicleId: 'vehicleId',
-        totalEarned: 102.5,
-        totalCommission: 87.0,
-        financialData: 'financialData',
-        finishedDeliveries: 21,
+        firstName: fName,
+        lastName: lName,
+        phoneNumber: pNum,
+        licenseNumber: licenseNum,
+        status: '',
+        rating: 0,
+        ratedBy: 0,
+        vehicleId: '',
+        totalEarned: 0.0,
+        totalCommission: 0.0,
+        financialData: '{}',
+        finishedDeliveries: 0,
         totalConfirmation: false);
     await Amplify.DataStore.save(rider);
+  } on DataStoreException catch (e) {
+    print(e.message);
+    return false;
+  }
+
+  return true;
+}
+
+Future<bool> registerCompany(
+    String pNum, String fName, String lName, String compName) async {
+  try {
+    Company company = Company(
+        firstName: fName,
+        lastName: lName,
+        companyName: compName,
+        phoneNumber: pNum,
+        rating: 0,
+        ratedBy: 0,
+        totalEarned: 0.0,
+        totalCommission: 0.0,
+        financialData: '{}',
+        finishedDeliveries: 0,
+        totalConfirmation: false);
+
+    await Amplify.DataStore.save(company);
   } on DataStoreException catch (e) {
     print(e.message);
     return false;
@@ -94,6 +124,7 @@ Future<bool> userSignOut() async {
   Globals.setSignedInStatus(false);
 
   Globals.finalizePrefRole();
+  await Amplify.DataStore.clear();
 
   try {
     await Amplify.Auth.signOut();
@@ -185,12 +216,54 @@ Future<bool> checkSession() async {
   return res;
 }
 
-Future<Rider?> pullUserModel() async {
+Future<dynamic> pullUserModel() async {
   if (Globals.getPhoneNumber() == '') {
     return null;
   }
-  List<Rider> riders = await Amplify.DataStore.query(Rider.classType,
-      where: Rider.PHONENUMBER.eq(Globals.getPhoneNumber()));
 
-  return riders.isNotEmpty ? riders[0] : null;
+  List<dynamic> userModelList;
+  switch (Globals.getRole()) {
+    case 'driver':
+      userModelList = await Amplify.DataStore.query(Rider.classType,
+          where: Rider.PHONENUMBER.eq(Globals.getPhoneNumber()));
+      break;
+    case 'company':
+      userModelList = await Amplify.DataStore.query(Company.classType,
+          where: Company.PHONENUMBER.eq(Globals.getPhoneNumber()));
+      break;
+    default:
+      userModelList = [];
+      break;
+  }
+
+  return userModelList.isNotEmpty ? userModelList[0] : null;
+}
+
+Future<void> uploadFiles(List<PlatformFile> toUpload, String identifier) async {
+  String fPrefix;
+  switch (Globals.getRole()) {
+    case 'driver':
+      fPrefix = 'DriverRegDocs';
+      break;
+    case 'company':
+      fPrefix = 'CompanyRegDocs';
+      break;
+    default:
+      print(
+          'Error uploading files - could not resolve role: ${Globals.getRole()}');
+      return;
+  }
+
+  toUpload.forEach((e) async {
+    try {
+      final UploadFileResult result = await Amplify.Storage.uploadFile(
+        local: File(e.path.toString()),
+        key: '$fPrefix/$identifier/${e.name}',
+        options: S3UploadFileOptions(accessLevel: StorageAccessLevel.guest),
+      );
+      print('Successfully uploaded file: ${result.key}');
+    } on StorageException catch (e) {
+      print('Error uploading file: $e');
+    }
+  });
 }

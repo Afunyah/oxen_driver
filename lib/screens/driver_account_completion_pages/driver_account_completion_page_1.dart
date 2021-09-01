@@ -105,22 +105,6 @@ class _DriverAccountCompletionPage1WidgetState
     });
   }
 
-  Future<void> uploadFiles(
-      List<PlatformFile> toUpload, String identifier) async {
-    toUpload.forEach((e) async {
-      try {
-        final UploadFileResult result = await Amplify.Storage.uploadFile(
-          local: File(e.path.toString()),
-          key: 'DriverRegDocs/$identifier/${e.name}',
-          options: S3UploadFileOptions(accessLevel: StorageAccessLevel.guest),
-        );
-        print('Successfully uploaded file: ${result.key}');
-      } on StorageException catch (e) {
-        print('Error uploading file: $e');
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -472,14 +456,6 @@ class _DriverAccountCompletionPage1WidgetState
                         children: [
                           FFButtonWidget(
                             onPressed: () async {
-                              // await Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) =>
-                              //         ConfirmLoginPageWidget(),
-                              //   ),
-                              // );
-
                               String dIdentifier =
                                   '${licenseNumberController!.text}-${firstNameController!.text}${lastNameController!.text}';
 
@@ -488,18 +464,25 @@ class _DriverAccountCompletionPage1WidgetState
                                         persistentPathsList, dIdentifier)
                                     .then((value) async {
                                   await registerDriver(
-                                      Globals.getPhoneNumber());
+                                      Globals.getPhoneNumber(),
+                                      firstNameController!.text,
+                                      lastNameController!.text,
+                                      licenseNumberController!.text);
                                 });
                               }
 
-                              await registerDriver(Globals
-                                  .getPhoneNumber()); //for testing, remove
+                              await registerDriver(
+                                  Globals.getPhoneNumber(),
+                                  firstNameController!.text,
+                                  lastNameController!.text,
+                                  licenseNumberController!
+                                      .text); //for testing, remove
 
                               Rider? userModel = await pullUserModel();
 
                               Globals.setRider(userModel!);
 
-                              Navigator.pushAndRemoveUntil(
+                              await Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>

@@ -272,21 +272,12 @@ class Company extends Model {
     
     modelSchemaDefinition.authRules = [
       AuthRule(
-        authStrategy: AuthStrategy.PRIVATE,
+        authStrategy: AuthStrategy.PUBLIC,
         operations: [
           ModelOperation.CREATE,
           ModelOperation.UPDATE,
           ModelOperation.DELETE,
           ModelOperation.READ
-        ]),
-      AuthRule(
-        authStrategy: AuthStrategy.OWNER,
-        ownerField: "owner",
-        identityClaim: "cognito:username",
-        operations: [
-          ModelOperation.CREATE,
-          ModelOperation.UPDATE,
-          ModelOperation.DELETE
         ])
     ];
     

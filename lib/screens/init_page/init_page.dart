@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:amplify_datastore/amplify_datastore.dart';
+import 'package:amplify_api/amplify_api.dart';
 import 'package:oxen_driver/models/ModelProvider.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
@@ -9,6 +10,7 @@ import 'package:oxen_driver/amplifyconfiguration.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
+import 'package:oxen_driver/screens/company_completion_pages/company_account_completion_page_1.dart';
 import 'package:oxen_driver/screens/completion_wait_page/completion_wait_page.dart';
 import 'package:oxen_driver/screens/driver_account_completion_pages/driver_account_completion_page_1.dart';
 import 'package:oxen_driver/screens/home_page/home_page.dart';
@@ -17,19 +19,18 @@ import 'package:oxen_driver/screens/role_selection_page/role_selection_page.dart
 import 'package:oxen_driver/screens/splashscreen_page/splashscreen_page.dart';
 
 import 'package:oxen_driver/globals.dart';
-
 //import 'package:google_fonts/google_fonts.dart';
+
 Future<void> configureAmplify() async {
-  // Add Pinpoint and Cognito Plugins, or any other plugins you want to use
   AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
-  AmplifyDataStore dataStorePlugin =
-      AmplifyDataStore(modelProvider: ModelProvider.instance);
+  AmplifyDataStore dataStorePlugin;
+  dataStorePlugin = AmplifyDataStore(modelProvider: ModelProvider.instance);
+  AmplifyAPI apiPlugin = AmplifyAPI();
   AmplifyStorageS3 s3Plugin = AmplifyStorageS3();
-  Amplify.addPlugins([authPlugin, dataStorePlugin, s3Plugin]);
+  Amplify.addPlugins([authPlugin, dataStorePlugin, s3Plugin, apiPlugin]);
 
   // Once Plugins are added, configure Amplify. Note: Amplify can only be configured once.
   try {
-    // await Amplify.configure(amplifyconfig).whenComplete(() => checkSession());\
     await Amplify.configure(amplifyconfig);
     StreamSubscription hubSubscription =
         Amplify.Hub.listen([HubChannel.Auth], (hubEvent) {
@@ -42,6 +43,7 @@ Future<void> configureAmplify() async {
         case "SIGNED_OUT":
           {
             print("USER IS SIGNED OUT");
+            Amplify.DataStore.clear();
           }
           break;
         case "SESSION_EXPIRED":
@@ -77,11 +79,28 @@ class _InitPageWidgetState extends State<InitPageWidget> {
         checkSession().then((validSession) async {
           print('ValidSession -> $validSession');
           if (validSession) {
-            await Globals.setRoleFromPref();
             // checkSession sets the global phone number and status
-            Rider? userModel = await pullUserModel();
+
+            await Globals.setRoleFromPref();
+
+            dynamic userModel;
+            switch (Globals.getRole()) {
+              case 'driver':
+                userModel = await pullUserModel();
+                if (userModel != null) Globals.setRider(userModel);
+                break;
+              case 'company':
+                userModel = await pullUserModel();
+                if (userModel != null) Globals.setCompany(userModel);
+                break;
+              default:
+                userModel = null;
+                break;
+            }
+
+            // Rider? userModel = await pullUserModel();
             if (userModel != null) {
-              Globals.setRider(userModel);
+              // Globals.setRider(userModel);
               print(userModel.toString());
 
               if (userModel.totalConfirmation) {
@@ -114,11 +133,19 @@ class _InitPageWidgetState extends State<InitPageWidget> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          DriverAccountCompletionPage1Widget(),
+                          CompanyAccountCompletionPage1Widget(),
                     ),
                     (route) => false);
               } else {
-                return;
+                print(
+                    "USER MODEL PREF ERROR: UNABLE TO DETERMINE ROLE - ${Globals.getRole()}");
+                userSignOut();
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RoleSelectionPageWidget(),
+                    ),
+                    (route) => false);
               }
             }
           } else {

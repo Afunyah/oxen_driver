@@ -32,7 +32,7 @@ export 'Vehicle.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "21378067e583aa997b5168005ac574e2";
+  String version = "bfa7ae9939f1c2616a2c00e521863b35";
   @override
   List<ModelSchema> modelSchemas = [Company.schema, Customer.schema, Rating.schema, Review.schema, Rider.schema, Vehicle.schema];
   static final ModelProvider _instance = ModelProvider();

@@ -6,11 +6,13 @@ import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
 import 'package:oxen_driver/globals.dart';
 import 'package:oxen_driver/models/ModelProvider.dart';
+import 'package:oxen_driver/screens/company_completion_pages/company_account_completion_page_1.dart';
 import 'package:oxen_driver/screens/completion_wait_page/completion_wait_page.dart';
 import 'package:oxen_driver/screens/driver_account_completion_pages/driver_account_completion_page_1.dart';
 import 'package:oxen_driver/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oxen_driver/screens/role_selection_page/role_selection_page.dart';
 
 class ConfirmLoginPageWidget extends StatefulWidget {
   const ConfirmLoginPageWidget({Key? key}) : super(key: key);
@@ -132,10 +134,22 @@ class _ConfirmLoginPageWidgetState extends State<ConfirmLoginPageWidget> {
                     return;
                   }
 
-                  Rider? userModel = await pullUserModel();
+                  dynamic userModel;
+                  switch (Globals.getRole()) {
+                    case 'driver':
+                      userModel = await pullUserModel();
+                      if (userModel != null) Globals.setRider(userModel);
+                      break;
+                    case 'company':
+                      userModel = await pullUserModel();
+                      if (userModel != null) Globals.setCompany(userModel);
+                      break;
+                    default:
+                      userModel = null;
+                      break;
+                  }
 
                   if (userModel != null) {
-                    Globals.setRider(userModel);
                     print(userModel.toString());
 
                     if (userModel.totalConfirmation) {
@@ -154,14 +168,34 @@ class _ConfirmLoginPageWidgetState extends State<ConfirmLoginPageWidget> {
                           (route) => false);
                     }
                   } else {
-                    await Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            DriverAccountCompletionPage1Widget(),
-                      ),
-                      (r) => false,
-                    );
+                    print('no user model loaded');
+                    if (Globals.getRole() == 'driver') {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DriverAccountCompletionPage1Widget(),
+                          ),
+                          (route) => false);
+                    } else if (Globals.getRole() == 'company') {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CompanyAccountCompletionPage1Widget(),
+                          ),
+                          (route) => false);
+                    } else {
+                      print(
+                          "USER MODEL PREF ERROR: UNABLE TO DETERMINE ROLE - ${Globals.getRole()}");
+                      userSignOut();
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RoleSelectionPageWidget(),
+                          ),
+                          (route) => false);
+                    }
                   }
                 },
                 text: 'Verify Code',

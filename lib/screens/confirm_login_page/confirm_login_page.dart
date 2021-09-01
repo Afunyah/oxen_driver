@@ -134,69 +134,39 @@ class _ConfirmLoginPageWidgetState extends State<ConfirmLoginPageWidget> {
                     return;
                   }
 
-                  dynamic userModel;
-                  switch (Globals.getRole()) {
-                    case 'driver':
-                      userModel = await pullUserModel();
-                      if (userModel != null) Globals.setRider(userModel);
-                      break;
-                    case 'company':
-                      userModel = await pullUserModel();
-                      if (userModel != null) Globals.setCompany(userModel);
-                      break;
-                    default:
-                      userModel = null;
-                      break;
-                  }
+                  Widget pageToPush;
+                  dynamic userModel = await pullUserModel();
 
                   if (userModel != null) {
                     print(userModel.toString());
-
                     if (userModel.totalConfirmation) {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomePageWidget(),
-                          ),
-                          (route) => false);
+                      pageToPush = HomePageWidget();
                     } else {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CompletionWaitPageWidget(),
-                          ),
-                          (route) => false);
+                      pageToPush = CompletionWaitPageWidget();
                     }
                   } else {
-                    print('no user model loaded');
-                    if (Globals.getRole() == 'driver') {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DriverAccountCompletionPage1Widget(),
-                          ),
-                          (route) => false);
-                    } else if (Globals.getRole() == 'company') {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                CompanyAccountCompletionPage1Widget(),
-                          ),
-                          (route) => false);
-                    } else {
-                      print(
-                          "USER MODEL PREF ERROR: UNABLE TO DETERMINE ROLE - ${Globals.getRole()}");
-                      userSignOut();
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RoleSelectionPageWidget(),
-                          ),
-                          (route) => false);
+                    print('No user model loaded -> selecting roles');
+                    switch (Globals.getRole()) {
+                      case 'driver':
+                        pageToPush = DriverAccountCompletionPage1Widget();
+                        break;
+                      case 'company':
+                        pageToPush = CompanyAccountCompletionPage1Widget();
+                        break;
+                      default:
+                        print(
+                            "USER MODEL PREF ERROR: UNABLE TO DETERMINE ROLE - ${Globals.getRole()}");
+                        userSignOut();
+                        pageToPush = RoleSelectionPageWidget();
                     }
                   }
+
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => pageToPush,
+                      ),
+                      (route) => false);
                 },
                 text: 'Verify Code',
                 options: FFButtonOptions(

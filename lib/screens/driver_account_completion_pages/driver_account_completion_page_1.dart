@@ -478,10 +478,6 @@ class _DriverAccountCompletionPage1WidgetState
                                   licenseNumberController!
                                       .text); //for testing, remove
 
-                              Rider? userModel = await pullUserModel();
-
-                              Globals.setRider(userModel!);
-
                               await Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(

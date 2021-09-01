@@ -85,20 +85,6 @@ Future<bool> registerCompany(
   return true;
 }
 
-Future<bool> verifyCode(String username, String code) async {
-  bool isSignUpComplete = false;
-  try {
-    SignUpResult res = await Amplify.Auth.confirmSignUp(
-        username: username, confirmationCode: code);
-
-    isSignUpComplete = res.isSignUpComplete;
-  } on AuthException catch (e) {
-    print(e.message);
-  }
-
-  return isSignUpComplete;
-}
-
 Future<bool> confirmUserLogin(String code) async {
   bool isSignedIn = false;
 
@@ -142,11 +128,7 @@ Future<bool> authUser(String username) async {
   //         options: CognitoSessionOptions(getAWSCredentials: true)))
   //     as CognitoAuthSession?;
 
-  // print('Access key: ${session!.credentials!.awsAccessKey}');
-  // print('Secret Key: ${session.credentials!.awsSecretKey}');
   // print('Identity ID:  ${session.identityId}');
-  // print('User Pool tokens: ${session.userPoolTokens!.accessToken}');
-  // print('User Pool tokens: ${session.userPoolTokens!.idToken}');
 
   try {
     SignInResult res = await Amplify.Auth.signIn(
@@ -162,22 +144,6 @@ Future<bool> authUser(String username) async {
   }
 
   return isSignedIn;
-}
-
-Future<bool> recoverPassword(String name) async {
-  bool isPasswordReset = false;
-
-  try {
-    ResetPasswordResult res = await Amplify.Auth.resetPassword(
-      username: name,
-    );
-
-    isPasswordReset = res.isPasswordReset;
-  } on AmplifyException catch (e) {
-    print(e);
-  }
-
-  return isPasswordReset;
 }
 
 Future<bool> checkSession() async {
@@ -203,6 +169,7 @@ Future<bool> checkSession() async {
     res = currentSession.isSignedIn;
   }
   // Does not work even if I remove last catch. Prints out whole err log
+  // signout on exception?
   on SignedOutException {
     print('Session logging null - no user signed in');
     return res;

@@ -478,10 +478,6 @@ class _CompanyAccountCompletionPage1WidgetState
                                   companyNameController!
                                       .text); //for testing, remove
 
-                              Company? userModel = await pullUserModel();
-
-                              Globals.setCompany(userModel!);
-
                               await Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(

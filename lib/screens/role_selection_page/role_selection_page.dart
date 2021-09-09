@@ -1,13 +1,9 @@
-import 'package:oxen_driver/auth/auth_utils.dart';
 import 'package:oxen_driver/globals.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
-import 'package:oxen_driver/screens/driver_account_completion_pages/driver_account_completion_page_1.dart';
 import 'package:oxen_driver/screens/login_page/login_page.dart';
-import 'package:oxen_driver/screens/register_page/register_page.dart';
 import 'package:flutter/material.dart';
-//import 'package:google_fonts/google_fonts.dart';
 
 class RoleSelectionPageWidget extends StatefulWidget {
   RoleSelectionPageWidget({Key? key}) : super(key: key);
@@ -34,14 +30,7 @@ class _RoleSelectionPageWidgetState extends State<RoleSelectionPageWidget> {
           stops: [0, 1],
           begin: Alignment(0, -1),
           end: Alignment(0, 1),
-        )
-            // image: DecorationImage(
-            //   fit: BoxFit.fill,
-            //   image: Image.asset(
-            //     'assets/images/bg_login.png',
-            //   ).image,
-            // ),
-            ),
+        )),
         child: Padding(
           padding: EdgeInsets.fromLTRB(0, 40, 0, 0),
           child: Column(

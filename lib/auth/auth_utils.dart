@@ -27,6 +27,13 @@ Future<bool> registerUser(String username) async {
     if (isSignUpComplete) {
       Globals.setPhoneNumber(username);
     }
+  } on UsernameExistsException catch (e) {
+    dynamic userModel = await pullUserModel();
+    if (userModel != null) {
+      print('Account already exists');
+    } else {
+      isSignUpComplete = true;
+    }
   } on AuthException catch (e) {
     print(e.message);
   }
@@ -42,10 +49,10 @@ Future<bool> registerDriver(
         lastName: lName,
         phoneNumber: pNum,
         licenseNumber: licenseNum,
-        status: '',
+        status: 'f',
         rating: 0,
         ratedBy: 0,
-        vehicleId: '',
+        vehicleId: 'f',
         totalEarned: 0.0,
         totalCommission: 0.0,
         financialData: '{}',
@@ -107,6 +114,7 @@ Future<bool> userSignOut() async {
   bool isSignedOut = true;
   Globals.setRole('');
   Globals.setPhoneNumber('');
+  Globals.setUserModelID('');
   Globals.setSignedInStatus(false);
 
   Globals.finalizePrefRole();
@@ -122,13 +130,6 @@ Future<bool> userSignOut() async {
 
 Future<bool> authUser(String username) async {
   print('Name: $username, Password: $genericKey');
-  bool isSignedIn = false;
-
-  // CognitoAuthSession? session = (await Amplify.Auth.fetchAuthSession(
-  //         options: CognitoSessionOptions(getAWSCredentials: true)))
-  //     as CognitoAuthSession?;
-
-  // print('Identity ID:  ${session.identityId}');
 
   try {
     SignInResult res = await Amplify.Auth.signIn(
@@ -136,14 +137,15 @@ Future<bool> authUser(String username) async {
       password: genericKey,
     );
 
-    isSignedIn = res
-        .isSignedIn; // I think will always be false since MFA enforced. set state()?
+    // isSignedIn = res
+    //     .isSignedIn; // I think will always be false since MFA enforced. set state()?
     Globals.setPhoneNumber(username);
   } on AuthException catch (e) {
     print(e.message);
+    return false;
   }
 
-  return isSignedIn;
+  return true;
 }
 
 Future<bool> checkSession() async {
@@ -202,6 +204,8 @@ Future<dynamic> pullUserModel() async {
       userModelList = [];
       break;
   }
+
+  Globals.setUserModelID(userModelList[0].id);
 
   return userModelList.isNotEmpty ? userModelList[0] : null;
 }

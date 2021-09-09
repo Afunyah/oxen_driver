@@ -1,3 +1,4 @@
+
 import 'package:oxen_driver/auth/auth_utils.dart';
 
 import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
@@ -5,13 +6,11 @@ import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
 import 'package:oxen_driver/globals.dart';
-import 'package:oxen_driver/models/ModelProvider.dart';
 import 'package:oxen_driver/screens/company_completion_pages/company_account_completion_page_1.dart';
 import 'package:oxen_driver/screens/completion_wait_page/completion_wait_page.dart';
 import 'package:oxen_driver/screens/driver_account_completion_pages/driver_account_completion_page_1.dart';
 import 'package:oxen_driver/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:oxen_driver/screens/role_selection_page/role_selection_page.dart';
 
 class ConfirmLoginPageWidget extends StatefulWidget {
@@ -38,11 +37,15 @@ class _ConfirmLoginPageWidgetState extends State<ConfirmLoginPageWidget> {
       appBar: AppBar(
         backgroundColor: FlutterFlowTheme.primaryColor,
         automaticallyImplyLeading: false,
-        leading: Icon(
-          Icons.chevron_left_rounded,
-          color: FlutterFlowTheme.tertiaryColor,
-          size: 32,
-        ),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.chevron_left_rounded,
+              color: FlutterFlowTheme.tertiaryColor,
+              size: 32,
+            )),
         title: Text(
           'Code Verification',
           style: FlutterFlowTheme.title2.override(
@@ -134,39 +137,44 @@ class _ConfirmLoginPageWidgetState extends State<ConfirmLoginPageWidget> {
                     return;
                   }
 
-                  Widget pageToPush;
-                  dynamic userModel = await pullUserModel();
+                  void pageLogic() async {
+                    Widget pageToPush;
+                    dynamic userModel = await pullUserModel();
 
-                  if (userModel != null) {
-                    print(userModel.toString());
-                    if (userModel.totalConfirmation) {
-                      pageToPush = HomePageWidget();
+                    if (userModel != null) {
+                      print(userModel.toString());
+                      if (userModel.totalConfirmation) {
+                        pageToPush = HomePageWidget();
+                      } else {
+                        pageToPush = CompletionWaitPageWidget();
+                      }
                     } else {
-                      pageToPush = CompletionWaitPageWidget();
+                      print('No user model loaded -> selecting roles');
+                      switch (Globals.getRole()) {
+                        case 'driver':
+                          pageToPush = DriverAccountCompletionPage1Widget();
+                          break;
+                        case 'company':
+                          pageToPush = CompanyAccountCompletionPage1Widget();
+                          break;
+                        default:
+                          print(
+                              "USER MODEL PREF ERROR: UNABLE TO DETERMINE ROLE - ${Globals.getRole()}");
+                          userSignOut();
+                          pageToPush = RoleSelectionPageWidget();
+                      }
                     }
-                  } else {
-                    print('No user model loaded -> selecting roles');
-                    switch (Globals.getRole()) {
-                      case 'driver':
-                        pageToPush = DriverAccountCompletionPage1Widget();
-                        break;
-                      case 'company':
-                        pageToPush = CompanyAccountCompletionPage1Widget();
-                        break;
-                      default:
-                        print(
-                            "USER MODEL PREF ERROR: UNABLE TO DETERMINE ROLE - ${Globals.getRole()}");
-                        userSignOut();
-                        pageToPush = RoleSelectionPageWidget();
-                    }
+
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => pageToPush,
+                        ),
+                        (route) => false);
                   }
 
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => pageToPush,
-                      ),
-                      (route) => false);
+                  Globals.pullCloudAndExecute(pageLogic);
+
                 },
                 text: 'Verify Code',
                 options: FFButtonOptions(

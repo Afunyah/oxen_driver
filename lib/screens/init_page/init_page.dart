@@ -16,10 +16,7 @@ import 'package:oxen_driver/screens/driver_account_completion_pages/driver_accou
 import 'package:oxen_driver/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:oxen_driver/screens/role_selection_page/role_selection_page.dart';
-import 'package:oxen_driver/screens/splashscreen_page/splashscreen_page.dart';
-
 import 'package:oxen_driver/globals.dart';
-//import 'package:google_fonts/google_fonts.dart';
 
 Future<void> configureAmplify() async {
   AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
@@ -32,8 +29,9 @@ Future<void> configureAmplify() async {
   // Once Plugins are added, configure Amplify. Note: Amplify can only be configured once.
   try {
     await Amplify.configure(amplifyconfig);
-    StreamSubscription hubSubscription =
-        Amplify.Hub.listen([HubChannel.Auth], (hubEvent) {
+    // ignore: cancel_subscriptions
+
+    Amplify.Hub.listen([HubChannel.Auth], (hubEvent) {
       switch (hubEvent.eventName) {
         case "SIGNED_IN":
           {
@@ -133,12 +131,6 @@ class _InitPageWidgetState extends State<InitPageWidget> {
         height: MediaQuery.of(context).size.height * 1,
         decoration: BoxDecoration(
           color: FlutterFlowTheme.secondaryColor,
-          // image: DecorationImage(
-          //   fit: BoxFit.fill,
-          //   image: Image.asset(
-          //     'assets/images/bg_login.png',
-          //   ).image,
-          // ),
         ),
         child: Padding(
           padding: EdgeInsets.fromLTRB(0, 40, 0, 0),

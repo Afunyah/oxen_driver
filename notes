@@ -1,0 +1,21 @@
+oxen_gen_key_8181220
+
+flutter run --no-sound-null-safety
+to run without null safety
+
+amplify api gql-compile
+amplify codegen models  *
+To compile schema after change
+
+amplify push
+To push local changes to cloud
+
+
+GraphQL endpoint: https://vytgw5hvjra2bgoxcynstf7awi.appsync-api.eu-west-2.amazonaws.com/graphql
+GraphQL API KEY: da2-dy3ipvkfkzgsjlgbgya3ezknjq
+
+
+ADD THIS AFTER PULLING SCHEMA
+The datastore observe method does not work when an int-like value(eg 5.0) is in a double field for one of the models (eg rating field in RIDER, COMPANY).
+After an amplify pull, in the particular model file, in the fromJson method, replace the field assignment ie json['totalEarned'] becomes (json['totalEarned'] as num?)?.toDouble()
+Find a more permanent solution.

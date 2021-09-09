@@ -1,7 +1,11 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:oxen_driver/auth/auth_utils.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
+import 'package:oxen_driver/globals.dart';
+import 'package:oxen_driver/models/ModelProvider.dart';
+import 'package:oxen_driver/screens/home_page/home_page.dart';
 import 'package:oxen_driver/screens/role_selection_page/role_selection_page.dart';
 
 class CompletionWaitPageWidget extends StatefulWidget {
@@ -14,6 +18,41 @@ class CompletionWaitPageWidget extends StatefulWidget {
 
 class _CompletionWaitPageWidgetState extends State<CompletionWaitPageWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  void initState() {
+    super.initState();
+
+    if (Globals.getRole() == 'driver') {
+      Amplify.DataStore.observe(Rider.classType).listen((event) {
+        if (event.item.id == Globals.getUserModelID()) {
+          print(event.item.totalConfirmation);
+          print("DRIVER ACCOUNT HAS BEEN FULLY VERIFIED");
+
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePageWidget(),
+              ),
+              (route) => false);
+        }
+      });
+    } else {
+      Amplify.DataStore.observe(Company.classType).listen((event) {
+        if (event.item.id == Globals.getUserModelID()) {
+          print(event.item.totalConfirmation);
+          print("COMPANY ACCOUNT HAS BEEN FULLY VERIFIED");
+
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePageWidget(),
+              ),
+              (route) => false);
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,12 +63,6 @@ class _CompletionWaitPageWidgetState extends State<CompletionWaitPageWidget> {
           height: MediaQuery.of(context).size.height * 1,
           decoration: BoxDecoration(
             color: FlutterFlowTheme.secondaryColor,
-            // image: DecorationImage(
-            //   fit: BoxFit.fill,
-            //   image: Image.asset(
-            //     'assets/images/bg_login.png',
-            //   ).image,
-            // ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.max,

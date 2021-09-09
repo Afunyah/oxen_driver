@@ -4,11 +4,8 @@ import 'package:oxen_driver/screens/confirm_login_page/confirm_login_page.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
-import 'package:oxen_driver/globals.dart';
-
 import 'package:oxen_driver/screens/login_page/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RegisterPageWidget extends StatefulWidget {
   RegisterPageWidget({Key? key}) : super(key: key);

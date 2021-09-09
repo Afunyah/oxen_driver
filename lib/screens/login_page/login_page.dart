@@ -149,7 +149,12 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                 return;
                               }
 
-                              await authUser(phoneNumberController.text);
+                              bool user =
+                                  await authUser(phoneNumberController.text);
+
+                              if (!user) {
+                                return;
+                              }
 
                               await Navigator.push(
                                   context,

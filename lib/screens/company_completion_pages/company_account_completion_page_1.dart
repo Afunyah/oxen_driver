@@ -1,21 +1,12 @@
-import 'dart:io';
-
-import 'package:amplify_flutter/amplify.dart';
-import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:flutter/services.dart';
 import 'package:oxen_driver/auth/auth_utils.dart';
-import 'package:oxen_driver/models/ModelProvider.dart';
 import 'package:oxen_driver/screens/completion_wait_page/completion_wait_page.dart';
-import 'package:oxen_driver/screens/confirm_login_page/confirm_login_page.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:oxen_driver/flutter_flow/flutter_flow_widgets.dart';
 import 'package:oxen_driver/globals.dart';
-
-import 'package:oxen_driver/screens/login_page/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:oxen_driver/screens/role_selection_page/role_selection_page.dart';
 
 class CompanyAccountCompletionPage1Widget extends StatefulWidget {

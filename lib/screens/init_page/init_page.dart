@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_api/amplify_api.dart';
+import 'package:amplify_flutter/categories/amplify_categories.dart';
 import 'package:oxen_driver/models/ModelProvider.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
@@ -24,7 +25,7 @@ Future<void> configureAmplify() async {
   dataStorePlugin = AmplifyDataStore(modelProvider: ModelProvider.instance);
   AmplifyAPI apiPlugin = AmplifyAPI();
   AmplifyStorageS3 s3Plugin = AmplifyStorageS3();
-  Amplify.addPlugins([authPlugin, dataStorePlugin, s3Plugin, apiPlugin]);
+  await Amplify.addPlugins([authPlugin, dataStorePlugin, s3Plugin, apiPlugin]);
 
   // Once Plugins are added, configure Amplify. Note: Amplify can only be configured once.
   try {
@@ -51,7 +52,7 @@ Future<void> configureAmplify() async {
           }
           break;
         default:
-          print("HERE");
+          print("SOME UNKNOWN AUTH HUBEVENT");
       }
     });
   } on AmplifyAlreadyConfiguredException {
@@ -91,7 +92,7 @@ class _InitPageWidgetState extends State<InitPageWidget> {
                 pageToPush = CompletionWaitPageWidget();
               }
             } else {
-              print('No user model loaded -> selecting roles');
+              print('No user model loaded for user');
               switch (Globals.getRole()) {
                 case 'driver':
                   pageToPush = DriverAccountCompletionPage1Widget();
@@ -107,6 +108,7 @@ class _InitPageWidgetState extends State<InitPageWidget> {
               }
             }
           } else {
+            print('No user model loaded -> selecting roles');
             pageToPush = RoleSelectionPageWidget();
           }
 

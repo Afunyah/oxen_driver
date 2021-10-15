@@ -1,4 +1,3 @@
-
 import 'package:oxen_driver/auth/auth_utils.dart';
 
 import 'package:oxen_driver/flutter_flow/flutter_flow_theme.dart';
@@ -24,10 +23,70 @@ class _ConfirmLoginPageWidgetState extends State<ConfirmLoginPageWidget> {
   TextEditingController? codeController;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  late bool buttonDisabled;
+
+  void pageLogic() async {
+    Widget pageToPush;
+    dynamic userModel = await pullUserModel();
+
+    if (userModel != null) {
+      print(userModel.toString());
+      if (userModel.totalConfirmation) {
+        pageToPush = HomePageWidget();
+      } else {
+        pageToPush = CompletionWaitPageWidget();
+      }
+    } else {
+      print('No user model loaded');
+      switch (Globals.getRole()) {
+        case 'driver':
+          pageToPush = DriverAccountCompletionPage1Widget();
+          break;
+        case 'company':
+          pageToPush = CompanyAccountCompletionPage1Widget();
+          break;
+        default:
+          print(
+              "USER MODEL PREF ERROR: UNABLE TO DETERMINE ROLE - ${Globals.getRole()}");
+          userSignOut();
+          pageToPush = RoleSelectionPageWidget();
+      }
+    }
+
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => pageToPush,
+        ),
+        (route) => false);
+  }
+
+  void buttonLogic() async {
+    buttonDisabled = true;
+    if (codeController!.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Enter SMS verification code.'),
+        ),
+      );
+      return;
+    }
+
+    final phoneVerifiedUser = await confirmUserLogin(codeController!.text);
+
+    if (!phoneVerifiedUser) {
+      buttonDisabled = false;
+      return;
+    }
+
+    pageLogic();
+  }
+
   @override
   void initState() {
     super.initState();
     codeController = TextEditingController();
+    buttonDisabled = false;
   }
 
   @override
@@ -120,61 +179,11 @@ class _ConfirmLoginPageWidgetState extends State<ConfirmLoginPageWidget> {
             Padding(
               padding: EdgeInsets.fromLTRB(0, 24, 0, 0),
               child: FFButtonWidget(
-                onPressed: () async {
-                  if (codeController!.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Enter SMS verification code.'),
-                      ),
-                    );
-                    return;
+                onPressed: () {
+                  if (buttonDisabled) {
+                  } else {
+                    buttonLogic();
                   }
-
-                  final phoneVerifiedUser =
-                      await confirmUserLogin(codeController!.text);
-
-                  if (!phoneVerifiedUser) {
-                    return;
-                  }
-
-                  void pageLogic() async {
-                    Widget pageToPush;
-                    dynamic userModel = await pullUserModel();
-
-                    if (userModel != null) {
-                      print(userModel.toString());
-                      if (userModel.totalConfirmation) {
-                        pageToPush = HomePageWidget();
-                      } else {
-                        pageToPush = CompletionWaitPageWidget();
-                      }
-                    } else {
-                      print('No user model loaded -> selecting roles');
-                      switch (Globals.getRole()) {
-                        case 'driver':
-                          pageToPush = DriverAccountCompletionPage1Widget();
-                          break;
-                        case 'company':
-                          pageToPush = CompanyAccountCompletionPage1Widget();
-                          break;
-                        default:
-                          print(
-                              "USER MODEL PREF ERROR: UNABLE TO DETERMINE ROLE - ${Globals.getRole()}");
-                          userSignOut();
-                          pageToPush = RoleSelectionPageWidget();
-                      }
-                    }
-
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => pageToPush,
-                        ),
-                        (route) => false);
-                  }
-
-                  Globals.pullCloudAndExecute(pageLogic);
-
                 },
                 text: 'Verify Code',
                 options: FFButtonOptions(

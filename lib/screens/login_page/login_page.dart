@@ -22,10 +22,34 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  late bool buttonDisabled;
+
+  void buttonLogic() async {
+    buttonDisabled = true;
+    if (!formKey.currentState!.validate()) {
+      buttonDisabled = false;
+      return;
+    }
+
+    bool user = await authUser(phoneNumberController.text);
+
+    if (!user) {
+      buttonDisabled = false;
+      return;
+    }
+
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConfirmLoginPageWidget(),
+        ));
+  }
+
   @override
   void initState() {
     super.initState();
     phoneNumberController = TextEditingController();
+    buttonDisabled = false;
   }
 
   @override
@@ -144,24 +168,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           FFButtonWidget(
-                            onPressed: () async {
-                              if (!formKey.currentState!.validate()) {
-                                return;
+                            onPressed: () {
+                              if (buttonDisabled) {
+                              } else {
+                                buttonLogic();
                               }
-
-                              bool user =
-                                  await authUser(phoneNumberController.text);
-
-                              if (!user) {
-                                return;
-                              }
-
-                              await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ConfirmLoginPageWidget(),
-                                  ));
                             },
                             text: 'Login',
                             options: FFButtonOptions(

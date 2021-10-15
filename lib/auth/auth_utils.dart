@@ -15,6 +15,8 @@ Future<bool> registerUser(String username) async {
   print('Name: $username, Password: $genericKey');
   bool isSignUpComplete = false;
 
+  Globals.setPhoneNumber(username);
+
   try {
     Map<String, String> userAttributes = {};
 
@@ -24,9 +26,6 @@ Future<bool> registerUser(String username) async {
         options: CognitoSignUpOptions(userAttributes: userAttributes));
 
     isSignUpComplete = res.isSignUpComplete;
-    if (isSignUpComplete) {
-      Globals.setPhoneNumber(username);
-    }
   } on UsernameExistsException catch (e) {
     dynamic userModel = await pullUserModel();
     if (userModel != null) {
@@ -36,6 +35,10 @@ Future<bool> registerUser(String username) async {
     }
   } on AuthException catch (e) {
     print(e.message);
+  }
+
+  if (!isSignUpComplete) {
+    Globals.setPhoneNumber('');
   }
 
   return isSignUpComplete;
@@ -102,6 +105,7 @@ Future<bool> confirmUserLogin(String code) async {
     isSignedIn = res.isSignedIn;
     if (isSignedIn) {
       Globals.finalizePrefRole();
+      Globals.clearLoginAttempts();
     }
   } on AuthException catch (e) {
     print(e.message);
@@ -111,30 +115,37 @@ Future<bool> confirmUserLogin(String code) async {
 }
 
 Future<bool> userSignOut() async {
-  bool isSignedOut = true;
-  Globals.setRole('');
-  Globals.setPhoneNumber('');
-  Globals.setUserModelID('');
-  Globals.setSignedInStatus(false);
-
-  Globals.finalizePrefRole();
-  await Amplify.DataStore.clear();
-
   try {
     await Amplify.Auth.signOut();
+
+    Globals.setRole('');
+    Globals.setPhoneNumber('');
+    Globals.setUserModelID('');
+    Globals.setSignedInStatus(false);
+
+    Globals.finalizePrefRole();
+    await Amplify.DataStore.stop();
+    await Amplify.DataStore.clear();
+    await Amplify.DataStore.start();
   } on AuthException catch (e) {
     print(e.message);
+    return false;
   }
-  return isSignedOut;
+  return true;
 }
 
 Future<bool> authUser(String username) async {
   print('Name: $username, Password: $genericKey');
 
+  Globals.incrementLoginAttempts(); //cleared after sign in confirmed
+  print('Login Attempts : ' + await Globals.getLoginAttempts());
+
   try {
     SignInResult res = await Amplify.Auth.signIn(
       username: username,
       password: genericKey,
+      options: CognitoSignInOptions(
+          clientMetadata: {'loginAttempts': await Globals.getLoginAttempts()}),
     );
 
     // isSignedIn = res
@@ -186,13 +197,19 @@ Future<bool> checkSession() async {
 }
 
 Future<dynamic> pullUserModel() async {
+  print('Pulling User Model');
   if (Globals.getPhoneNumber() == '') {
+    print('No Global Phone Number');
     return null;
   }
+
+  print('Pulling Cloud and Pulling User Model');
+  await Globals.pullCloud();
 
   List<dynamic> userModelList;
   switch (Globals.getRole()) {
     case 'driver':
+      print('here');
       userModelList = await Amplify.DataStore.query(Rider.classType,
           where: Rider.PHONENUMBER.eq(Globals.getPhoneNumber()));
       break;
@@ -201,13 +218,16 @@ Future<dynamic> pullUserModel() async {
           where: Company.PHONENUMBER.eq(Globals.getPhoneNumber()));
       break;
     default:
+      print('Error in roles pref. No user model.');
       userModelList = [];
       break;
   }
 
-  Globals.setUserModelID(userModelList[0].id);
-
-  return userModelList.isNotEmpty ? userModelList[0] : null;
+  if (userModelList.isNotEmpty) {
+    Globals.setUserModelID(userModelList[0].id);
+    return userModelList[0];
+  }
+  return null;
 }
 
 Future<void> uploadFiles(List<PlatformFile> toUpload, String identifier) async {

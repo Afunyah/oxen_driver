@@ -33,9 +33,49 @@ class _CompanyAccountCompletionPage1WidgetState
   List<PlatformFile> persistentPathsList = [];
   bool loadingPath = false;
 
+  late bool buttonDisabled;
+
+  void submitButtonLogic() async {
+    buttonDisabled = true;
+    String dIdentifier =
+        '${companyNameController!.text}-${firstNameController!.text}${lastNameController!.text}';
+
+    if (persistentPathsList.isNotEmpty) {
+      await uploadFiles(persistentPathsList, dIdentifier);
+      // .then((value) async {
+      //   await registerCompany(
+      //       Globals.getPhoneNumber(),
+      //       firstNameController!.text,
+      //       lastNameController!.text,
+      //       companyNameController!.text);
+      // });
+    }
+    // else return; //for testing, add for full functionality?
+
+    bool user = await registerCompany(
+        Globals.getPhoneNumber(),
+        firstNameController!.text,
+        lastNameController!.text,
+        companyNameController!.text);
+
+    if (!user) {
+      buttonDisabled = false;
+      return;
+    }
+
+    await Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CompletionWaitPageWidget(),
+        ),
+        (route) => false);
+  }
+
   @override
   void initState() {
     super.initState();
+
+    buttonDisabled = false;
 
     scrollController =
         ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
@@ -446,36 +486,11 @@ class _CompanyAccountCompletionPage1WidgetState
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FFButtonWidget(
-                            onPressed: () async {
-                              String dIdentifier =
-                                  '${companyNameController!.text}-${firstNameController!.text}${lastNameController!.text}';
-
-                              if (persistentPathsList.isNotEmpty) {
-                                await uploadFiles(
-                                        persistentPathsList, dIdentifier)
-                                    .then((value) async {
-                                  await registerCompany(
-                                      Globals.getPhoneNumber(),
-                                      firstNameController!.text,
-                                      lastNameController!.text,
-                                      companyNameController!.text);
-                                });
+                            onPressed: () {
+                              if (buttonDisabled) {
+                              } else {
+                                submitButtonLogic();
                               }
-
-                              await registerCompany(
-                                  Globals.getPhoneNumber(),
-                                  firstNameController!.text,
-                                  lastNameController!.text,
-                                  companyNameController!
-                                      .text); //for testing, remove
-
-                              await Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        CompletionWaitPageWidget(),
-                                  ),
-                                  (route) => false);
                             },
                             text: 'Submit',
                             options: FFButtonOptions(

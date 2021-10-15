@@ -20,12 +20,35 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  late bool buttonDisabled;
+
+  void buttonLogic() async {
+    buttonDisabled = true;
+    final user = await registerUser(phoneNumberController!.text);
+
+    if (!user) {
+      buttonDisabled = false;
+      return;
+    }
+
+    await authUser(phoneNumberController!.text);
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConfirmLoginPageWidget(),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
 
     phoneNumberController = TextEditingController();
     phoneNumberController = TextEditingController();
+
+    buttonDisabled = false;
   }
 
   @override
@@ -145,22 +168,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         FFButtonWidget(
-                          onPressed: () async {
-                            final user =
-                                await registerUser(phoneNumberController!.text);
-
-                            if (!user) {
-                              return;
+                          onPressed: () {
+                            if (buttonDisabled) {
+                            } else {
+                              buttonLogic();
                             }
-
-                            await authUser(phoneNumberController!.text);
-
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ConfirmLoginPageWidget(),
-                              ),
-                            );
                           },
                           text: 'Create Account',
                           options: FFButtonOptions(

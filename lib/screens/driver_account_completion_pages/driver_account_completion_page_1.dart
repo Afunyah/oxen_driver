@@ -33,9 +33,49 @@ class _DriverAccountCompletionPage1WidgetState
   List<PlatformFile> persistentPathsList = [];
   bool loadingPath = false;
 
+  late bool buttonDisabled;
+
+  void submitButtonLogic() async {
+    buttonDisabled = true;
+    String dIdentifier =
+        '${licenseNumberController!.text}-${firstNameController!.text}${lastNameController!.text}';
+
+    if (persistentPathsList.isNotEmpty) {
+      await uploadFiles(persistentPathsList, dIdentifier);
+      // .then((value) async {
+      //   bool user = await registerDriver(
+      //       Globals.getPhoneNumber(),
+      //       firstNameController!.text,
+      //       lastNameController!.text,
+      //       licenseNumberController!.text);
+      // });
+    }
+    // else return; //for testing, add for full functionality?
+
+    bool user = await registerDriver(
+        Globals.getPhoneNumber(),
+        firstNameController!.text,
+        lastNameController!.text,
+        licenseNumberController!.text);
+
+    if (!user) {
+      buttonDisabled = false;
+      return;
+    }
+
+    await Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CompletionWaitPageWidget(),
+        ),
+        (route) => false);
+  }
+
   @override
   void initState() {
     super.initState();
+
+    buttonDisabled = false;
 
     scrollController =
         ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
@@ -446,36 +486,11 @@ class _DriverAccountCompletionPage1WidgetState
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FFButtonWidget(
-                            onPressed: () async {
-                              String dIdentifier =
-                                  '${licenseNumberController!.text}-${firstNameController!.text}${lastNameController!.text}';
-
-                              if (persistentPathsList.isNotEmpty) {
-                                await uploadFiles(
-                                        persistentPathsList, dIdentifier)
-                                    .then((value) async {
-                                  await registerDriver(
-                                      Globals.getPhoneNumber(),
-                                      firstNameController!.text,
-                                      lastNameController!.text,
-                                      licenseNumberController!.text);
-                                });
+                            onPressed: () {
+                              if (buttonDisabled) {
+                              } else {
+                                submitButtonLogic();
                               }
-
-                              await registerDriver(
-                                  Globals.getPhoneNumber(),
-                                  firstNameController!.text,
-                                  lastNameController!.text,
-                                  licenseNumberController!
-                                      .text); //for testing, remove
-
-                              await Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        CompletionWaitPageWidget(),
-                                  ),
-                                  (route) => false);
                             },
                             text: 'Submit',
                             options: FFButtonOptions(
@@ -507,7 +522,7 @@ class _DriverAccountCompletionPage1WidgetState
                             children: [
                               FFButtonWidget(
                                 onPressed: () async {
-                                  await userSignOut();
+                                  userSignOut();
                                   Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(

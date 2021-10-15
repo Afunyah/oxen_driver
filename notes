@@ -19,3 +19,6 @@ ADD THIS AFTER PULLING SCHEMA
 The datastore observe method does not work when an int-like value(eg 5.0) is in a double field for one of the models (eg rating field in RIDER, COMPANY).
 After an amplify pull, in the particular model file, in the fromJson method, replace the field assignment ie json['totalEarned'] becomes (json['totalEarned'] as num?)?.toDouble()
 Find a more permanent solution.
+
+sCSatmps secure storage key for login attempts
+role shared pref key for roles
